@@ -1,46 +1,47 @@
-import java.math.BigInteger;
+import java.math.BigInteger
+import kotlin.math.floor
+import kotlin.math.pow
 
-public class KaratsubaAlgorithm {
+object KaratsubaAlgorithm {
+    @JvmStatic
+    fun multiplication(num1: BigInteger, num2: BigInteger): BigInteger {
+        if (num1.toInt() < 10 || num2.toInt() < 10)
+            return num1.multiply(num2)
 
-    public static BigInteger multiplication(BigInteger num1, BigInteger num2) {
-        if(num1.intValue() < 10 || num2.intValue() < 10)
-            return num1.multiply(num2);
+        val sizeOfNumbers = sizeOfTheNumbers(num1, num2)
+        val numberOne = formatPairOfValues(num1, sizeOfNumbers)
 
-        int sizeOfNumbers = sizeOfTheNumbers(num1, num2);
+        val highOne = numberOne.firstPart
+        val lowOne = numberOne.secondPart
+        val numberTwo = formatPairOfValues(num2, sizeOfNumbers)
 
-        BigNumber numberOne = formatPairOfValues(num1, sizeOfNumbers);
-        BigInteger highOne = numberOne.getFirstPart();
-        BigInteger lowOne = numberOne.getSecondPart();
+        val highTwo = numberTwo.firstPart
+        val lowTwo = numberTwo.secondPart
 
-        BigNumber numberTwo = formatPairOfValues(num2, sizeOfNumbers);
-        BigInteger highTwo = numberTwo.getFirstPart();
-        BigInteger lowTwo = numberTwo.getSecondPart();
+        val firstStep = highOne.multiply(highTwo)
+        val secondStep = lowOne.multiply(lowTwo)
+        val thirdStep = highOne.add(lowOne).multiply(highTwo.add(lowTwo))
+        val fourthStep = thirdStep.subtract(secondStep).subtract(firstStep)
 
-        BigInteger firstStep = (highOne.multiply(highTwo));
-        BigInteger secondStep = (lowOne.multiply(lowTwo));
-        BigInteger thirdStep = (highOne.add(lowOne)).multiply(highTwo.add(lowTwo));
-        BigInteger fourthStep = thirdStep.subtract(secondStep).subtract(firstStep);
-
-        return firstStep.multiply(BigInteger.valueOf((long) Math.pow(10, sizeOfNumbers*2)))
-                .add(secondStep)
-                .add(fourthStep.multiply(BigInteger.valueOf((long) Math.pow(10, sizeOfNumbers))));
+        return firstStep.multiply(BigInteger.valueOf(10.0.pow((sizeOfNumbers * 2).toDouble()).toLong()))
+            .add(secondStep)
+            .add(fourthStep.multiply(BigInteger.valueOf(10.0.pow(sizeOfNumbers.toDouble()).toLong())))
     }
 
-    private static int sizeOfTheNumbers(BigInteger num1, BigInteger num2) {
-        return (int) Math.floor(Math.min( log10(num1), log10(num2)) /2);
+    private fun sizeOfTheNumbers(num1: BigInteger, num2: BigInteger) =
+        floor((log10(num1).coerceAtMost(log10(num2)) / 2).toDouble()).toInt()
+
+
+    private fun log10(num1: BigInteger): Int {
+        return (kotlin.math.log10(num1.toDouble()) + 1).toInt()
     }
 
-    private static int log10(BigInteger num1) {
-        return (int) (Math.log10(num1.doubleValue()) + 1);
-    }
-
-    private static BigNumber formatPairOfValues(BigInteger number, int halfOfTheText) {
-        String numberAsString = String.valueOf(number);
-        int lengthOfNumber = numberAsString.length();
-
-        return new BigNumber(
-            new BigInteger(numberAsString.substring(0, halfOfTheText)),
-            new BigInteger(numberAsString.substring(halfOfTheText, lengthOfNumber))
-        );
+    private fun formatPairOfValues(number: BigInteger, halfOfTheText: Int): BigNumber {
+        val numberAsString = number.toString()
+        val lengthOfNumber = numberAsString.length
+        return BigNumber(
+            BigInteger(numberAsString.substring(0, halfOfTheText)),
+            BigInteger(numberAsString.substring(halfOfTheText, lengthOfNumber))
+        )
     }
 }
